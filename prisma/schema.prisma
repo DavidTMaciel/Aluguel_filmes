@@ -1,0 +1,44 @@
+
+//Definindo o banco de dados atravez da variavel de ambiente DATABASE_URL
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+//Atravez do generator client é possiel manipular os dados do banco de dados
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id      String   @id @default(uuid()) //Definindo o ID com autoencremente
+  email   String   @unique //Definindo o email como unico
+  name    String? 
+  created_at DateTime @default(now()) //Definindo data de criação e Update respectivamente, com valores padrões criados assim que gerados
+  updated_at DateTime @updatedAt
+  movie_rent movieRent[] @relation("user")//Corelacioando com o Model MovieRent
+
+  @@map("users")
+}
+//Outro model, primeira tags se trata de colunas criadas no banco de dados, e os demais campos, definindo o tipo e a configuração
+model Movie{
+  id String  @id @default(uuid())
+  title String @unique
+  duration Int
+  release_date DateTime
+  movie_rent movieRent[] @relation("movie")
+
+  @@map("movies")
+
+}
+model movieRent {
+  user User @relation("user", fields:[userId], references: [id])
+  userId String
+  movie Movie @relation("movie",fields:[movieId], references: [id])
+  movieId String 
+
+//Passando as relações
+ @@id([userId, movieId])
+
+ @@map("movie_rent")
+}
+
